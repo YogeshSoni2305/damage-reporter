@@ -19,23 +19,32 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Camera, Upload } from "lucide-react";
+import { saveReport } from "@/utils/db";
+import { getAddressFromCoordinates } from "@/utils/location";
 
 const Index = () => {
   const { toast } = useToast();
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [address, setAddress] = useState<string>("");
   const [photo, setPhoto] = useState<File | null>(null);
   const [description, setDescription] = useState("");
   const [damageType, setDamageType] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLocationRequest = () => {
+  const handleLocationRequest = async () => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
+        async (position) => {
+          const coords = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
-          });
+          };
+          setLocation(coords);
+          
+          // Get human-readable address
+          const addressResult = await getAddressFromCoordinates(coords.lat, coords.lng);
+          setAddress(addressResult);
+          
           toast({
             title: "Location detected",
             description: "Your current location has been captured.",
@@ -74,12 +83,16 @@ const Index = () => {
     setIsLoading(true);
 
     try {
-      // Here you would typically send the data to your backend
-      console.log({
-        photo,
-        description,
+      if (!location || !photo || !description || !damageType) {
+        throw new Error("Please fill in all required fields");
+      }
+
+      await saveReport({
         damageType,
-        location,
+        description,
+        location: address,
+        coordinates: location,
+        photo,
       });
 
       toast({
@@ -92,11 +105,12 @@ const Index = () => {
       setDescription("");
       setDamageType("");
       setLocation(null);
+      setAddress("");
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to submit report. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to submit report. Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -185,9 +199,10 @@ const Index = () => {
                 {location ? "Location Detected ✓" : "Detect My Location"}
               </Button>
               {location && (
-                <p className="text-sm text-muted-foreground">
-                  Lat: {location.lat.toFixed(6)}, Lng: {location.lng.toFixed(6)}
-                </p>
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p>Coordinates: {location.lat.toFixed(6)}, {location.lng.toFixed(6)}</p>
+                  <p>Address: {address}</p>
+                </div>
               )}
             </div>
 
