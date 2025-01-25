@@ -78,9 +78,17 @@ const Index = () => {
     }
   };
 
+  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log('Image Address:', photo);
+    console.log('Dropdown Value:', damageType);
+    console.log('Text String:', description);
+    console.log('Location:', location);
+    // console.log('Longitude:', longitude);
+
 
     try {
       if (!location || !photo || !description || !damageType) {
@@ -167,11 +175,11 @@ const Index = () => {
                   <SelectValue placeholder="Select damage type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pothole">Pothole</SelectItem>
-                  <SelectItem value="bridge">Bridge Damage</SelectItem>
-                  <SelectItem value="sidewalk">Sidewalk Damage</SelectItem>
-                  <SelectItem value="streetlight">Street Light Issue</SelectItem>
-                  <SelectItem value="graffiti">Graffiti</SelectItem>
+                  <SelectItem value="pothole">Potholes</SelectItem>
+                  <SelectItem value="drainage">Poor Drainage</SelectItem>
+                  <SelectItem value="crack">Building/Bridges Cracks</SelectItem>
+                  <SelectItem value="streetlight">Street Light Issues</SelectItem>
+                  <SelectItem value="railway"> Railway Related Issues</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
@@ -206,7 +214,7 @@ const Index = () => {
               )}
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button  onClick={handleSubmit} type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Submitting..." : "Submit Report"}
             </Button>
           </form>
