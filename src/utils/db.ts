@@ -1,3 +1,4 @@
+// First interface for the form submission
 interface DamageReport {
   damageType: string;
   description: string;
@@ -6,7 +7,8 @@ interface DamageReport {
   photo: File;
 }
 
-interface SavedReport extends DamageReport {
+// Separate interface for the stored version
+interface SavedReport extends Omit<DamageReport, 'photo'> {
   id: string;
   createdAt: string;
   photo: string; // Base64 string
@@ -22,7 +24,7 @@ export const saveReport = async (data: DamageReport) => {
       reader.readAsDataURL(data.photo);
     });
 
-    const report = {
+    const report: SavedReport = {
       ...data,
       photo: photoBase64,
       id: Date.now().toString(),
@@ -45,19 +47,19 @@ export const saveReport = async (data: DamageReport) => {
   }
 };
 
-// New function to get all reports
+// Get all reports
 export const getAllReports = (): SavedReport[] => {
   const reports = JSON.parse(localStorage.getItem('damageReports') || '[]');
   return reports;
 };
 
-// New function to get a single report by ID
+// Get a single report by ID
 export const getReportById = (id: string): SavedReport | null => {
   const reports = getAllReports();
   return reports.find(report => report.id === id) || null;
 };
 
-// New function to get the latest report
+// Get the latest report
 export const getLatestReport = (): SavedReport | null => {
   const reports = getAllReports();
   return reports.length > 0 ? reports[reports.length - 1] : null;
