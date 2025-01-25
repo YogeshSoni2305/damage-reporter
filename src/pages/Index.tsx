@@ -78,17 +78,9 @@ const Index = () => {
     }
   };
 
-  
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log('Image Address:', photo);
-    console.log('Dropdown Value:', damageType);
-    console.log('Text String:', description);
-    console.log('Location:', location);
-    // console.log('Longitude:', longitude);
-
 
     try {
       if (!location || !photo || !description || !damageType) {
@@ -214,7 +206,7 @@ const Index = () => {
               )}
             </div>
 
-            <Button  onClick={handleSubmit} type="submit" className="w-full" disabled={isLoading}>
+            <Button onClick={handleSubmit} type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Submitting..." : "Submit Report"}
             </Button>
           </form>
