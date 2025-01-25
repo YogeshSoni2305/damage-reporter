@@ -1,32 +1,40 @@
-import mysql from 'mysql2/promise';
-
-const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'your_username',
-  password: 'your_password',
-  database: 'damage_reports',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
-
-export const saveReport = async (data: {
+interface DamageReport {
   damageType: string;
   description: string;
   location: string;
   coordinates: { lat: number; lng: number };
   photo: File;
-}) => {
+}
+
+export const saveReport = async (data: DamageReport) => {
   try {
-    const connection = await pool.getConnection();
-    const [result] = await connection.execute(
-      'INSERT INTO damage_reports (damage_type, description, location, coordinates, photo) VALUES (?, ?, ?, ?, ?)',
-      [data.damageType, data.description, data.location, JSON.stringify(data.coordinates), data.photo]
-    );
-    connection.release();
-    return result;
+    // Convert File to base64 string for storage
+    const reader = new FileReader();
+    const photoBase64 = await new Promise<string>((resolve, reject) => {
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(data.photo);
+    });
+
+    const report = {
+      ...data,
+      photo: photoBase64,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString()
+    };
+
+    // Get existing reports or initialize empty array
+    const existingReports = JSON.parse(localStorage.getItem('damageReports') || '[]');
+    
+    // Add new report
+    existingReports.push(report);
+    
+    // Save back to localStorage
+    localStorage.setItem('damageReports', JSON.stringify(existingReports));
+
+    return { success: true, id: report.id };
   } catch (error) {
-    console.error('Database error:', error);
-    throw error;
+    console.error('Storage error:', error);
+    throw new Error('Failed to save report');
   }
 };
