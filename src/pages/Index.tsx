@@ -22,6 +22,7 @@ import { Camera, Upload } from "lucide-react";
 import { saveReport } from "@/utils/db";
 import { getAddressFromCoordinates } from "@/utils/location";
 
+
 const Index = () => {
   const { toast } = useToast();
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -128,7 +129,7 @@ const Index = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form method="POST" onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="photo">Upload Photo</Label>
               <div className="flex items-center gap-4">
@@ -215,5 +216,5 @@ const Index = () => {
     </div>
   );
 };
-
+// export default saveReport;
 export default Index;
